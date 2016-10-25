@@ -1,6 +1,7 @@
-package com.example.richellerazon.nytsearch;
+package com.example.richellerazon.nytsearch.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -10,10 +11,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import com.example.richellerazon.nytsearch.Article;
+import com.example.richellerazon.nytsearch.ArticleArrayAdapter;
+import com.example.richellerazon.nytsearch.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -81,6 +86,24 @@ public class SearchActivity extends AppCompatActivity {
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         gvResults.setAdapter(adapter);
+
+        // hook up listner for grid click
+        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // create an intent to display the article
+                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
+
+                // get the article to display
+                Article article = articles.get(position);
+
+                // pass in that articl into intent
+                i.putExtra("article", article);
+
+                // launch the activity
+                startActivity(i);
+            }
+        });
     }
 
     @Override
