@@ -15,12 +15,11 @@ import com.example.richellerazon.nytsearch.R;
 
 import java.util.ArrayList;
 
-public class FilterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class FilterActivity extends AppCompatActivity {
     String beginDate;
     String sortOrder;
     ArrayList<String> newsDesks;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
@@ -38,6 +37,17 @@ public class FilterActivity extends AppCompatActivity implements AdapterView.OnI
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spSortOrder.setAdapter(adapter);
+        spSortOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sortOrder = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                sortOrder = "newest";
+            }
+        });
 
         if(!sortOrder.equals(null)) {
             int spinnerPosition = adapter.getPosition(sortOrder);
@@ -48,16 +58,6 @@ public class FilterActivity extends AppCompatActivity implements AdapterView.OnI
     public void showDatePickerDialog(View view) {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        sortOrder = parent.getItemAtPosition(position).toString();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        sortOrder = "newest";
     }
 
     public void onSaveFilters(View view) {
