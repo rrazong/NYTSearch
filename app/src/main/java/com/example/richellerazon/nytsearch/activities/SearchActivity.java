@@ -37,6 +37,9 @@ public class SearchActivity extends AppCompatActivity {
     GridView gvResults;
     Button btnSearch;
 
+    String sortOrder;
+    String beginDate;
+    ArrayList<String> newsDesks;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -86,6 +89,11 @@ public class SearchActivity extends AppCompatActivity {
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         gvResults.setAdapter(adapter);
+        sortOrder = "newest";
+        beginDate = "";
+        newsDesks = new ArrayList<String>();
+        //newsDesks.add("Sports");
+        //newsDesks.add("Cars");
 
         // hook up listner for grid click
         gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -121,7 +129,8 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.search_filters) {
+
             return true;
         }
 
@@ -130,6 +139,7 @@ public class SearchActivity extends AppCompatActivity {
 
     public void onArticleSearch(View view) {
         String query = etQuery.getText().toString();
+        String newsDeskValue = "";
 
         //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_SHORT).show();
 
@@ -139,6 +149,19 @@ public class SearchActivity extends AppCompatActivity {
         params.put("api-key", "aebb93f60cdf4d8a989931b8f1b32cf4");
         params.put("page", 0);
         params.put("q", query);
+        params.put("sort", sortOrder);
+        if (beginDate.length() > 0) {
+            params.put("begin_date", beginDate);
+        }
+        if (newsDesks.size() > 0) {
+            newsDeskValue = "";
+            for(int i = 0; i < newsDesks.size(); i++) {
+                newsDeskValue = newsDeskValue + "\"" + newsDesks.get(i) + "\" ";
+            }
+            newsDeskValue = "news_desk:(" + newsDeskValue + ")";
+            params.put("fq", newsDeskValue);
+        }
+        Log.d("DEBUG", params.toString());
 
         client.get(url, params, new JsonHttpResponseHandler(){
             @Override
