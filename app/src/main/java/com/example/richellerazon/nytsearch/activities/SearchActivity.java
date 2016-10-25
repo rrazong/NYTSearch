@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.richellerazon.nytsearch.Article;
 import com.example.richellerazon.nytsearch.ArticleArrayAdapter;
@@ -43,6 +44,8 @@ public class SearchActivity extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+
+    private final int REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,12 +138,23 @@ public class SearchActivity extends AppCompatActivity {
             i.putExtra("beginDate", beginDate);
             i.putExtra("sortOrder", sortOrder);
             i.putStringArrayListExtra("newsDesks", newsDesks);
-            startActivity(i);
+            startActivityForResult(i, REQUEST_CODE);
 
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            // Extract name value from result extras
+            beginDate = data.getExtras().getString("beginDate");
+            sortOrder = data.getExtras().getString("sortOrder");
+            newsDesks = data.getStringArrayListExtra("newsDesks");
+            Toast.makeText(this, beginDate, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onArticleSearch(View view) {

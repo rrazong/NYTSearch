@@ -111,6 +111,7 @@
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/button"
+        android:onClick="onSaveFilters"
         android:layout_marginBottom="84dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
