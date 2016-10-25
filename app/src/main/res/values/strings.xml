@@ -4,4 +4,17 @@
     <string name="hint">Enter search query</string>
     <string name="search">Search</string>
     <string name="title_activity_article">ArticleActivity</string>
+    <string name="title_activity_filter">FilterActivity</string>
+    <string name="begin_date">Begin Date</string>
+    <string name="sort_order">Sort Order</string>
+    <string name="save">Save</string>
+    <string name="news_desk_values">News Desk Values</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="change">Change</string>
+    <string name="art">Art</string>
+    <string name="cars">Cars</string>
+    <string name="dining">Dining</string>
+    <string name="sports">Sports</string>
 </resources>

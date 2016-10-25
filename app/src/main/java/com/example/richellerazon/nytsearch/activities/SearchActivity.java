@@ -127,9 +127,15 @@ public class SearchActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Intent i;
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.search_filters) {
+            i = new Intent(getApplicationContext(), FilterActivity.class);
+            i.putExtra("beginDate", beginDate);
+            i.putExtra("sortOrder", sortOrder);
+            i.putStringArrayListExtra("newsDesks", newsDesks);
+            startActivity(i);
 
             return true;
         }
