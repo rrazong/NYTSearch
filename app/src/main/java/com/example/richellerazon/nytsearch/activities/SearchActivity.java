@@ -63,8 +63,6 @@ public class SearchActivity extends AppCompatActivity {
         if (!isOnline()) {
             Log.e("Error", "onCreate: Not online", new Exception("Not online."));
         }
-
-        Log.i("RRR", "Finished onCreate()");
     };
 
     private boolean isNetworkAvailable() {
@@ -98,7 +96,7 @@ public class SearchActivity extends AppCompatActivity {
         //newsDesks.add("Sports");
         //newsDesks.add("Cars");
 
-        // hook up listner for grid click
+        // hook up listener for grid click
         gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -132,7 +130,7 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
         Intent i;
 
-        //noinspection SimplifiableIfStatement
+        // TODO replace beginDate, sortOrder, and newsDesks with a Filter model
         if (id == R.id.search_filters) {
             i = new Intent(getApplicationContext(), FilterActivity.class);
             i.putExtra("beginDate", beginDate);

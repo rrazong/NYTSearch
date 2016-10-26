@@ -7,9 +7,8 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by richellerazon on 10/24/16.
- */
+
+// TODO: change from Serializable to Parcelable
 public class Article implements Serializable {
     String webUrl;
 
