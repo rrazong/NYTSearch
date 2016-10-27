@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.richellerazon.nytsearch.Article;
 import com.example.richellerazon.nytsearch.ArticleArrayAdapter;
+import com.example.richellerazon.nytsearch.EndlessScrollListener;
 import com.example.richellerazon.nytsearch.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -41,6 +42,7 @@ public class SearchActivity extends AppCompatActivity {
     String sortOrder;
     String beginDate;
     ArrayList<String> newsDesks;
+    int maxHits;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -93,10 +95,8 @@ public class SearchActivity extends AppCompatActivity {
         sortOrder = "newest";
         beginDate = "";
         newsDesks = new ArrayList<String>();
-        //newsDesks.add("Sports");
-        //newsDesks.add("Cars");
 
-        // hook up listener for grid click
+        // hook up item click listener for grid view
         gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -113,6 +113,78 @@ public class SearchActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        // hook up scroll listener for grid view
+        gvResults.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                Log.d("DEBUG", "onLoadMore, page " + page + ", totalItemsCount " + totalItemsCount + ", maxHits " + maxHits);
+                if (totalItemsCount >= maxHits) {
+                    return false;
+                }
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to your AdapterView
+                loadNextDataFromApi(page);
+                // or loadNextDataFromApi(totalItemsCount);
+
+
+                return true; // ONLY if more data is actually being loaded; false otherwise.            }
+            }
+        });
+    }
+
+    public void loadNextDataFromApi(final int page) {
+        Log.d("DEBUG", "loadNextDataFromApi: page " + page);
+        String query = etQuery.getText().toString();
+        String newsDeskValue = "";
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        RequestParams params = new RequestParams();
+        params.put("api-key", "aebb93f60cdf4d8a989931b8f1b32cf4");
+        params.put("page", page);
+        params.put("q", query);
+        params.put("sort", sortOrder);
+        if (beginDate.length() > 0) {
+            params.put("begin_date", beginDate);
+        }
+        if (newsDesks.size() > 0) {
+            newsDeskValue = "";
+            for(int i = 0; i < newsDesks.size(); i++) {
+                newsDeskValue = newsDeskValue + "\"" + newsDesks.get(i) + "\" ";
+            }
+            newsDeskValue = "news_desk:(" + newsDeskValue + ")";
+            params.put("fq", newsDeskValue);
+        }
+        Log.d("DEBUG", params.toString());
+
+        if (page == 0) {
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+        }
+
+        client.get(url, params, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                JSONArray articleJsonResults = null;
+
+                try {
+                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                    if (page == 0) {
+                        maxHits = response.getJSONObject("response").getJSONObject("meta").getInt("hits");
+                    }
+                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+    }
+
+    public void onArticleSearch(View view) {
+        loadNextDataFromApi(0);
     }
 
     @Override
@@ -155,46 +227,4 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    public void onArticleSearch(View view) {
-        String query = etQuery.getText().toString();
-        String newsDeskValue = "";
-
-        //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_SHORT).show();
-
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
-        RequestParams params = new RequestParams();
-        params.put("api-key", "aebb93f60cdf4d8a989931b8f1b32cf4");
-        params.put("page", 0);
-        params.put("q", query);
-        params.put("sort", sortOrder);
-        if (beginDate.length() > 0) {
-            params.put("begin_date", beginDate);
-        }
-        if (newsDesks.size() > 0) {
-            newsDeskValue = "";
-            for(int i = 0; i < newsDesks.size(); i++) {
-                newsDeskValue = newsDeskValue + "\"" + newsDesks.get(i) + "\" ";
-            }
-            newsDeskValue = "news_desk:(" + newsDeskValue + ")";
-            params.put("fq", newsDeskValue);
-        }
-        Log.d("DEBUG", params.toString());
-
-        client.get(url, params, new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articleJsonResults = null;
-
-                try {
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-    }
 }
