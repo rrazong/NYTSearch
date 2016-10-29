@@ -5,15 +5,15 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -35,9 +35,8 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
-    EditText etQuery;
     GridView gvResults;
-    Button btnSearch;
+    SearchView searchView;
 
     String sortOrder;
     String beginDate;
@@ -86,9 +85,7 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void setupViews() {
-        etQuery = (EditText) findViewById(R.id.etQuery);
         gvResults = (GridView) findViewById(R.id.gvResults);
-        btnSearch = (Button) findViewById(R.id.btnSearch);
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
         gvResults.setAdapter(adapter);
@@ -135,7 +132,7 @@ public class SearchActivity extends AppCompatActivity {
 
     public void loadNextDataFromApi(final int page) {
         Log.d("DEBUG", "loadNextDataFromApi: page " + page);
-        String query = etQuery.getText().toString();
+        String query = searchView.getQuery().toString();
         String newsDeskValue = "";
 
         AsyncHttpClient client = new AsyncHttpClient();
@@ -183,15 +180,32 @@ public class SearchActivity extends AppCompatActivity {
 
     }
 
-    public void onArticleSearch(View view) {
-        loadNextDataFromApi(0);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //perform query here
+                loadNextDataFromApi(0);
+
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
